@@ -1,0 +1,22 @@
+[project]
+name = "pseudodata"
+version = "0.1.0"
+description = "Un microservice chargé de pseudonymiser un jeu de données"
+authors = [
+    {name = "Thierry HUET"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pandas (>=3.0.1,<4.0.0)",
+    "duckdb (>=1.5.1,<2.0.0)",
+    "pyarrow (>=23.0.1,<24.0.0)",
+    "openpyxl (>=3.1.5,<4.0.0)",
+    "pytest (>=9.0.2,<10.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
