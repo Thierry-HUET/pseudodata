@@ -1,4 +1,5 @@
-# pseudonymize-batch
+# Pseudonimysation
+> Un outil pour pseudonimiser ses données
 
 Outil Python en ligne de commande pour pseudonymiser des fichiers tabulaires (CSV, Parquet, XLSX) avec traçabilité complète du traitement.
 
@@ -93,6 +94,7 @@ python depseudonymize.py \
 ```
 
 La vérification d'intégrité via le fichier de signature est **obligatoire**. Le traitement est bloqué si la signature est invalide ou si les fichiers ont été modifiés depuis la pseudonymisation.
+Par ailleurs, le nom des colonnes mappées lors de la pseudonymisation doivent être identiques à celles du fichier depseudonymisées.
 
 ### Paramètres
 
