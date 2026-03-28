@@ -195,4 +195,5 @@ pytest test_pseudonymize.py -v
 
 ## Licence
 
-MIT
+Ce projet est distribué sous licence Apache 2.0.  
+La propriété intellectuelle du code demeure celle de ses auteurs.
