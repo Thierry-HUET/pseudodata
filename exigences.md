@@ -140,6 +140,18 @@ La table de correspondance SHALL être séparée physiquement ou logiquement du 
 
 ---
 
+### REQ‑OUT‑04 – Artefacts de sortie obligatoires
+
+À chaque exécution de pseudonymisation, le microservice SHALL produire les artefacts suivants :
+- Le fichier pseudonymisé
+- Une table de correspondance permettant la ré‑identification contrôlée
+- Un manifeste d’exécution au format JSON
+- Un fichier de signature garantissant l’intégrité des artefacts
+
+Ces artefacts SHALL être produits systématiquement, y compris en cas de succès partiel.
+
+---
+
 ## 6. Exigences de comportement
 
 ### REQ‑BEH‑01 – Déterminisme
@@ -286,3 +298,96 @@ La sécurité du microservice SHALL reposer sur plusieurs niveaux complémentair
 - Traçabilité
 
 Aucun mécanisme de sécurité unique SHALL être considéré comme suffisant.
+
+---
+
+## 10. Exigences de traçabilité
+
+### REQ‑TRA‑01 – Manifeste d’exécution
+
+Le microservice SHALL générer un manifeste d’exécution au format JSON pour chaque opération de pseudonymisation.
+
+Le manifeste SHALL contenir au minimum :
+- Un identifiant d’exécution unique
+- Un horodatage
+- Le schéma d’entrée observé
+- Les colonnes demandées, effectives et absentes
+- Les statistiques de couverture par colonne
+- Les chemins et formats des artefacts générés
+
+---
+
+### REQ‑TRA‑02 – Tolérance aux écarts de schéma
+
+Si certaines colonnes demandées sont absentes du fichier réel :
+- Le traitement SHALL se poursuivre
+- Les écarts SHALL être consignés dans le manifeste
+- Le résultat SHALL être qualifié de succès partiel
+
+---
+
+## 11. Exigences cryptographiques
+
+### REQ‑CRY‑01 – Algorithme de pseudonymisation
+
+La pseudonymisation SHALL reposer sur un mécanisme déterministe.
+
+Un algorithme de type HMAC basé sur une fonction de hachage cryptographique SHOULD être utilisé.
+
+---
+
+### REQ‑CRY‑02 – Déterminisme inter‑exécutions
+
+À clé identique, une même valeur source SHALL produire le même pseudonyme entre plusieurs exécutions, afin de permettre des jointures entre jeux de données pseudonymisés.
+
+---
+
+### REQ‑CRY‑03 – Réversibilité exclusivement externe
+
+Le mécanisme cryptographique seul MUST NOT permettre la ré‑identification.
+
+La réversibilité SHALL être assurée exclusivement par la table de correspondance.
+
+---
+
+## 12. Exigences d’intégrité
+
+### REQ‑INTG‑01 – Signature des artefacts
+
+Le microservice SHALL produire un fichier de signature couvrant :
+- Le fichier source
+- Le fichier pseudonymisé
+- La table de correspondance
+- Le manifeste
+
+---
+
+### REQ‑INTG‑02 – Vérification préalable à la dépseudonymisation
+
+Toute opération de dépseudonymisation MUST inclure une vérification d’intégrité.
+
+Le traitement SHALL être bloqué si une modification est détectée.
+
+---
+
+## 13. Exigences d’interface en ligne de commande
+
+### REQ‑CLI‑01 – Interface CLI
+
+Le microservice SHALL pouvoir être piloté via une interface en ligne de commande.
+
+Cette interface SHALL permettre :
+- La spécification du fichier d’entrée
+- La désignation explicite des colonnes à pseudonymiser
+- La localisation des artefacts de sortie
+
+---
+
+### REQ‑CLI‑02 – Codes de retour normalisés
+
+L’interface CLI SHALL retourner des codes distincts pour :
+- Succès complet
+- Succès partiel
+- Erreur bloquante
+
+---
