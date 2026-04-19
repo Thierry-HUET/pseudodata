@@ -141,3 +141,70 @@ La table de correspondance SHALL être séparée physiquement ou logiquement du 
 
 ## 6. Exigences de comportement
 
+### REQ‑BEH‑01 – Déterminisme
+
+Le traitement SHALL être déterministe.
+
+Une même valeur source SHALL produire le même pseudonyme dans un contexte donné.
+
+---
+
+### REQ‑BEH‑02 – Réversibilité contrôlée
+
+La ré‑identification SHALL être possible uniquement par l’accès à la table de correspondance.
+
+---
+
+### REQ‑BEH‑03 – Traçabilité
+
+Le microservice SHALL produire une journalisation minimale comprenant
+- La date du traitement
+- Le type de traitement
+- Le jeu de règles appliqué
+
+---
+
+### REQ‑BEH‑04 – Stateless par défaut
+
+Le microservice SHALL être stateless par défaut.
+
+Toute persistance SHALL être explicitement configurée.
+
+---
+
+## 7. Exigences hors périmètre
+
+### REQ‑OOS‑01 – Traitements exclus
+
+Sont explicitement hors périmètre
+- Anonymisation irréversible
+- Chiffrement de bout en bout
+- Analyse sémantique avancée de texte libre
+- Décisions automatiques non validées concernant la sensibilité des champs
+
+---
+
+## 8. Exigences d’interfaces et de pilotage
+
+### REQ‑INT‑01 – Pilotage par API
+
+Le microservice SHALL exposer une API permettant
+- La soumission d’un fichier
+- La fourniture des règles de pseudonymisation
+- La récupération du fichier pseudonymisé
+
+---
+
+### REQ‑INT‑02 – Pilotage par interface Web
+
+Le microservice SHALL proposer une interface Web permettant
+- La sélection du fichier à traiter
+- La configuration des règles de pseudonymisation
+- Le déclenchement du traitement
+- Le téléchargement du résultat
+
+---
+
+### REQ‑INT‑03 – Technologie de l’interface Web
+
+L’interface Web SHALL être développée avec Streamlit.
