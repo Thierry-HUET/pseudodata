@@ -68,6 +68,7 @@ Le microservice SHALL accepter en entrée des fichiers structurés aux formats s
 - JSON
 - XML
 - Parquet
+- Excel (XLSX)
 
 ---
 
