@@ -80,3 +80,98 @@ Le microservice doit couvrir deux cas d’usage distincts.
 
 - Le microservice met en œuvre un traitement de pseudonymisation
 - Les données produites restent des données personnelles
+
+## 2. Périmètre fonctionnel
+
+### 2.1 Entrées
+
+- Un fichier structuré contenant des données à caractère personnel  
+- Formats supportés
+  - CSV
+  - JSON
+  - XML
+  - Parquet
+- Un jeu de règles de pseudonymisation
+  - Déclaratif
+  - Paramétrable par appel ou par configuration
+
+---
+
+### 2.2 Identification des champs à pseudonymiser
+
+Le microservice doit être capable d’identifier les champs à pseudonymiser selon deux modes complémentaires.
+
+#### Mode explicite (déclaratif)
+
+- Les champs à pseudonymiser sont fournis explicitement
+  - Par nom de colonne
+  - Par chemin (JSON / XML)
+- Ce mode est obligatoire et constitue le socle fonctionnel
+
+Avantages
+- Déterminisme total
+- Absence d’ambiguïté réglementaire
+- Simplicité d’audit
+
+---
+
+#### Mode implicite (assisté)
+
+- Le microservice peut proposer une identification automatique des champs sensibles
+- Cette identification repose sur
+  - Le schéma du fichier lorsqu’il est disponible
+  - Des règles sémantiques simples
+    - Nom du champ
+    - Type logique
+    - Longueur
+    - Régularités de valeurs
+
+Statut
+- Fonction d’aide à la configuration
+- Ne constitue pas une décision automatique
+
+Hypothèses
+- Une validation humaine ou applicative est requise avant exécution
+- Aucun champ ne doit être pseudonymisé sans validation explicite
+
+Limites connues
+- Pertinent pour données tabulaires
+- Non fiable pour texte libre ou champs multi‑sémantiques
+
+---
+
+### 2.3 Sorties
+
+- Le fichier pseudonymisé
+  - Même format que le fichier d’entrée
+- Optionnel
+  - Table de correspondance
+    - Identifiant original ↔ pseudonyme
+    - Générée uniquement si la réversibilité est autorisée
+    - Séparée physiquement ou logiquement du fichier pseudonymisé
+
+---
+
+### 2.4 Propriétés attendues du traitement
+
+- Déterminisme
+  - Une même valeur source produit toujours le même pseudonyme
+- Réversibilité contrôlée
+  - Restreinte à l’accès à la table de correspondance
+- Traçabilité
+  - Journalisation minimale
+    - Type de traitement
+    - Date
+    - Jeu de règles appliqué
+- Isolation
+  - Microservice stateless par défaut
+  - Toute persistance doit être explicitement configurée
+
+---
+
+### 2.5 Hors périmètre explicite
+
+- Anonymisation irréversible
+- Chiffrement de bout en bout
+- Analyse sémantique avancée de texte libre
+- Décisions automatiques sans validation sur la sensibilité des champs
