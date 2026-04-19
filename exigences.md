@@ -208,3 +208,80 @@ Le microservice SHALL proposer une interface Web permettant
 ### REQ‑INT‑03 – Technologie de l’interface Web
 
 L’interface Web SHALL être développée avec Streamlit.
+
+## 9. Exigences de sécurité
+
+### REQ‑SEC‑01 – Principe de minimisation des données
+
+Le microservice SHALL traiter uniquement les données strictement nécessaires à l’opération de pseudonymisation.
+
+Aucune donnée inutile au traitement MUST NOT être conservée ou exposée.
+
+---
+
+### REQ‑SEC‑02 – Séparation des secrets et des données
+
+Les éléments permettant la ré‑identification (tables de correspondance, clés, secrets) SHALL être séparés
+- Logiquement
+- Et/ou physiquement
+
+Ils MUST NOT être stockés dans le même emplacement que les données pseudonymisées par défaut.
+
+---
+
+### REQ‑SEC‑03 – Gestion des secrets
+
+Les secrets utilisés par le microservice (clés, sels, identifiants, accès) MUST NOT être
+- Codés en dur
+- Versionnés dans le dépôt Git
+
+Ils SHALL être fournis via
+- Variables d’environnement
+- Ou un mécanisme externe de gestion de secrets
+
+---
+
+### REQ‑SEC‑04 – Isolation du service
+
+Le microservice SHALL être isolé du système hôte conformément aux bonnes pratiques Docker.
+
+Il MUST NOT nécessiter de privilèges élevés (root) pour fonctionner.
+
+---
+
+### REQ‑SEC‑05 – Exposition réseau
+
+Le microservice SHALL exposer uniquement les ports strictement nécessaires
+- API
+- Interface Web
+
+Tout autre port MUST NOT être exposé.
+
+---
+
+### REQ‑SEC‑06 – Journalisation sécurisée
+
+Les journaux produits par le microservice
+- MUST NOT contenir de données pseudonymisées exploitables
+- MUST NOT contenir la table de correspondance ou des secrets
+
+Les journaux SHALL être exploitables à des fins d’audit et d’investigation.
+
+---
+
+### REQ‑SEC‑07 – Protection contre les usages abusifs
+
+Le microservice SHOULD inclure des mécanismes de limitation permettant d’éviter
+- Les appels excessifs
+- Les traitements involontaires ou massifs non autorisés
+
+---
+
+### REQ‑SEC‑08 – Principe de défense en profondeur
+
+La sécurité du microservice SHALL reposer sur plusieurs niveaux complémentaires
+- Isolation du conteneur
+- Séparation des données et des secrets
+- Traçabilité
+
+Aucun mécanisme de sécurité unique SHALL être considéré comme suffisant.
