@@ -1,6 +1,7 @@
 # Microservice de pseudonymisation
 
-> Microservice conteneurisé (Docker) de pseudonymisation de données structurées, conforme RGPD, avec interface Web et API.
+> Microservice conteneurisé (Docker) de pseudonymisation de données structurées, conforme RGPD, avec interface Web et API.  
+> Développé en **Python**.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)]()
@@ -22,7 +23,7 @@ Ce microservice met en œuvre un traitement de **pseudonymisation** au sens du R
 
 ### Cas 1 – Pseudonymisation avant traitement
 
-Pseudonymisation de données avant transmission pour exploitation (analyse, tests, reprises de données). La table de correspondance est conservée par l'émetteur ; la ré-identification peut constituer un besoin métier légitime.
+Pseudonymisation de données avant transmission pour exploitation (analyse, tests, reprises de données). Ce cas d'usage préserve les capacités de **rapprochement, d'analyse et de production de statistiques**. La table de correspondance est conservée par l'émetteur ; la ré-identification peut constituer un besoin métier légitime.
 
 ### Cas 2 – Pseudonymisation pour transmission sur réseau non sécurisé
 
@@ -37,11 +38,11 @@ Pour chaque exécution, le microservice produit quatre artefacts :
 | Artefact | Nom | Description |
 |---|---|---|
 | Fichier pseudonymisé | `<sortie>` | Données sources avec les colonnes désignées remplacées par des pseudonymes HMAC-SHA256 |
-| Table de correspondance | `<mapping>` | Fichier de réversibilité permettant la ré-identification contrôlée |
+| Table de correspondance | `<mapping>` | Fichier de réversibilité, généré uniquement si la réversibilité est autorisée |
 | Manifeste JSON | `<sortie>.manifeste.json` | Rapport d'exécution horodaté : colonnes traitées, taux de couverture, chemins de sortie |
-| Fichier de signature | `<sortie>.signature.json` | Empreintes HMAC-SHA256 de tous les artefacts et du fichier source |
+| Fichier de signature | `<sortie>.signature.json` | Empreintes HMAC-SHA256 du fichier source, du fichier pseudonymisé, de la table de correspondance et du manifeste |
 
-Le manifeste et la signature sont générés **systématiquement**, indépendamment du succès ou des erreurs partielles.
+Le manifeste et la signature sont générés **systématiquement**, y compris en cas de succès partiel.
 
 ---
 
@@ -54,6 +55,8 @@ Le manifeste et la signature sont générés **systématiquement**, indépendamm
 | XML | ✓ | ✓ | Chemin de champ configurable |
 | Parquet | ✓ | ✓ | Types natifs conservés |
 | Excel (XLSX) | ✓ | ✓ | Première feuille par défaut |
+
+Seules les données structurées sont traitées. Le texte libre est hors périmètre.
 
 ---
 
@@ -230,7 +233,7 @@ Généré automatiquement sous le nom `<sortie>.manifeste.json`.
 
 - `taux` — proportion de valeurs non nulles effectivement pseudonymisées
 - `taux_global` — couverture sur l'ensemble des cellules éligibles
-- `colonnes_absentes` — écart entre la configuration demandée et le schéma réel du fichier
+- `colonnes_absentes` — écart entre la configuration demandée et le schéma réel ; le traitement se poursuit et le résultat est qualifié de succès partiel
 - `empreinte_secret` — empreinte non réversible de la clé, permettant de détecter un changement entre deux exécutions
 
 > Un `taux_global` de 1.0 atteste une couverture technique complète. Il ne constitue pas une garantie d'anonymisation au sens du RGPD.
@@ -239,19 +242,23 @@ Généré automatiquement sous le nom `<sortie>.manifeste.json`.
 
 ## Algorithme
 
-**HMAC-SHA256 déterministe** : une même valeur source produit toujours le même pseudonyme, ce qui permet les jointures entre jeux de données pseudonymisés avec la même clé.
+**HMAC-SHA256 déterministe** : une même valeur source produit toujours le même pseudonyme, à clé identique, entre plusieurs exécutions. Cette propriété permet les jointures entre jeux de données pseudonymisés avec la même clé.
 
-La réversibilité est assurée exclusivement par la table de correspondance — l'algorithme seul ne permet pas la ré-identification.
+La réversibilité est assurée **exclusivement** par la table de correspondance — l'algorithme seul ne permet pas la ré-identification.
 
 ---
 
 ## Sécurité
 
-- La table de correspondance doit être **séparée physiquement** des données pseudonymisées
-- Les secrets (clés, sels) ne doivent jamais être codés en dur ni versionnés dans Git — les fournir via variables d'environnement ou un gestionnaire de secrets externe
-- Le microservice est **stateless par défaut** — toute persistance doit être explicitement configurée
-- Le conteneur fonctionne **sans privilèges élevés** (non-root)
-- Les journaux ne contiennent ni données pseudonymisées exploitables, ni table de correspondance, ni secrets
+- **Minimisation** — seules les données strictement nécessaires à l'opération sont traitées ; aucune donnée superflue n'est conservée ni exposée
+- **Séparation des secrets et des données** — la table de correspondance, les clés et secrets sont séparés logiquement et/ou physiquement des données pseudonymisées ; ils ne sont jamais stockés au même emplacement par défaut
+- **Gestion des secrets** — les clés et sels ne doivent jamais être codés en dur ni versionnés dans Git ; les fournir via variables d'environnement ou un gestionnaire de secrets externe
+- **Isolation du conteneur** — le microservice fonctionne sans privilèges élevés (non-root), conformément aux bonnes pratiques Docker
+- **Exposition réseau minimale** — seuls les ports de l'API et de l'interface Web sont exposés ; tout autre port est fermé
+- **Stateless par défaut** — toute persistance doit être explicitement configurée
+- **Journalisation sécurisée** — les journaux ne contiennent ni données pseudonymisées exploitables, ni table de correspondance, ni secrets ; ils restent exploitables à des fins d'audit
+- **Protection contre les usages abusifs** — des mécanismes de limitation sont prévus pour éviter les appels excessifs et les traitements massifs non autorisés
+- **Défense en profondeur** — la sécurité repose sur plusieurs niveaux complémentaires (isolation, séparation des données et secrets, traçabilité) ; aucun mécanisme pris isolément n'est considéré comme suffisant
 
 ---
 
@@ -268,7 +275,8 @@ La réversibilité est assurée exclusivement par la table de correspondance —
 
 - Anonymisation irréversible
 - Chiffrement de bout en bout
-- Analyse sémantique avancée de texte libre
+- Traitement de texte libre
+- Analyse sémantique avancée
 - Décisions automatiques non validées concernant la sensibilité des champs
 
 ---
