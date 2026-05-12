@@ -97,7 +97,7 @@ sbom:
 
 # ------------------------------------------------------------------------------
 .PHONY: release
-release:
+release: sbom
 	@echo "→ Version : $(VERSION)"
 	@# Synchronisation de pyproject.toml avec le fichier VERSION
 	@CURRENT=$$(grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'); \
