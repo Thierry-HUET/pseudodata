@@ -7,8 +7,10 @@
 #   make push                    → push branche courante + tags
 #   make status                  → affiche l'état git
 #   make version                 → affiche la version courante
+#   make run                     → lance l'interface Streamlit (port : STREAMLIT_PORT, défaut 8501)
 #
 # Pour changer de version : éditer le fichier VERSION, puis lancer make release
+# Pour changer le port    : STREAMLIT_PORT=8502 make run
 # ==============================================================================
 
 .DEFAULT_GOAL := help
@@ -22,6 +24,9 @@ VERSION := $(shell cat VERSION | tr -d '[:space:]')
 # Branche courante
 BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 
+# Port Streamlit — surchargeable via variable d'environnement
+STREAMLIT_PORT ?= 8501
+
 # ------------------------------------------------------------------------------
 .PHONY: help
 help:
@@ -31,8 +36,10 @@ help:
 	@echo "  make push       Push branche courante + tags vers origin"
 	@echo "  make status     État du dépôt git"
 	@echo "  make version    Affiche la version courante"
+	@echo "  make run        Lance l'interface Streamlit (STREAMLIT_PORT=$(STREAMLIT_PORT))"
 	@echo ""
 	@echo "  → Pour changer de version : éditer le fichier VERSION puis make release"
+	@echo "  → Pour changer le port    : STREAMLIT_PORT=8502 make run"
 	@echo ""
 
 # ------------------------------------------------------------------------------
@@ -44,6 +51,12 @@ version:
 .PHONY: status
 status:
 	@git status
+
+# ------------------------------------------------------------------------------
+.PHONY: run
+run:
+	@echo "→ Démarrage Streamlit sur le port $(STREAMLIT_PORT)..."
+	STREAMLIT_PORT=$(STREAMLIT_PORT) streamlit run app.py --server.port $(STREAMLIT_PORT)
 
 # ------------------------------------------------------------------------------
 .PHONY: commit

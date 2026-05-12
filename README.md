@@ -17,6 +17,19 @@ Ce microservice met en œuvre un traitement de **pseudonymisation** au sens du R
 - Le traitement est **réversible sous conditions maîtrisées**
 - La pseudonymisation **ne se substitue pas** à un mécanisme de chiffrement des communications
 
+### Cyber Resilience Act (CRA)
+
+Ce microservice est un produit comportant des éléments numériques au sens du **Règlement (UE) 2024/2847** (Cyber Resilience Act), applicable à partir d'octobre 2027.
+
+En tant que composant exposant une API et traitant des données à caractère personnel dans un contexte professionnel, il est susceptible d'être classé en **Classe I** (produit important — Annexe III, fonctions de sécurité).
+
+La démarche de conformité CRA est documentée dans **[CRA.md](CRA.md)**. Ce document couvre :
+- la qualification et le classement du produit
+- les exigences essentielles applicables
+- l'état de conformité actuel
+- les actions restantes avant mise sur le marché
+- les obligations post-mise sur le marché (gestion des vulnérabilités, notification d'incidents)
+
 ---
 
 ## Cas d'usage
