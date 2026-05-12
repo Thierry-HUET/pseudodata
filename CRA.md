@@ -130,10 +130,11 @@ Justification : le microservice met en œuvre des **fonctions de sécurité** au
 Produire un Software Bill of Materials au format CycloneDX ou SPDX couvrant toutes les dépendances directes et transitives.
 
 ```bash
-# Exemple avec cyclonedx-bom
 pip install cyclonedx-bom
-cyclonedx-py requirements requirements.txt -o sbom.json --format json
+make sbom
 ```
+
+Options retenues : `--of JSON --sv 1.6 -o <fichier>` (syntaxe de la version installée).
 
 Dépendances directes actuelles à inventorier : `pandas`, `pyarrow`, `openpyxl`, `typer`, `streamlit`, `duckdb`, `numpy`, `python-dateutil`.
 

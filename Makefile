@@ -27,6 +27,10 @@ BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 # Port Streamlit — surchargeable via variable d'environnement
 STREAMLIT_PORT ?= 8501
 
+# Répertoire et nom du fichier SBOM
+SBOM_DIR      ?= docs/cra
+SBOM_FILE     ?= $(SBOM_DIR)/sbom.json
+
 # ------------------------------------------------------------------------------
 .PHONY: help
 help:
@@ -37,9 +41,11 @@ help:
 	@echo "  make status     État du dépôt git"
 	@echo "  make version    Affiche la version courante"
 	@echo "  make run        Lance l'interface Streamlit (STREAMLIT_PORT=$(STREAMLIT_PORT))"
+	@echo "  make sbom       Génère le SBOM CycloneDX JSON dans $(SBOM_FILE)"
 	@echo ""
 	@echo "  → Pour changer de version : éditer le fichier VERSION puis make release"
 	@echo "  → Pour changer le port    : STREAMLIT_PORT=8502 make run"
+	@echo "  → Pour changer le répertoire SBOM : SBOM_DIR=. make sbom"
 	@echo ""
 
 # ------------------------------------------------------------------------------
@@ -74,6 +80,20 @@ push:
 	@echo "→ Push vers origin/$(BRANCH) (avec tags)..."
 	@git push origin $(BRANCH) --tags
 	@echo "  Push terminé."
+
+# ------------------------------------------------------------------------------
+.PHONY: sbom
+sbom:
+	@echo "→ Génération du SBOM CycloneDX ($(SBOM_FILE))..."
+	@command -v cyclonedx-py >/dev/null 2>&1 \
+		|| { echo "  ✗ cyclonedx-py absent — installation : pip install cyclonedx-bom"; exit 1; }
+	@mkdir -p $(SBOM_DIR)
+	@cyclonedx-py requirements requirements.txt \
+		--of JSON \
+		--sv 1.6 \
+		-o $(SBOM_FILE)
+	@echo "  ✓ SBOM généré : $(SBOM_FILE)"
+	@python3 -c "import json; d=json.load(open('$(SBOM_FILE)')); print('  Composants :', len(d.get('components', [])), 'dépendances indexées')"
 
 # ------------------------------------------------------------------------------
 .PHONY: release
